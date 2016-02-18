@@ -487,7 +487,7 @@ private:
   // Incoming data buffers
   //////////////////////////////////////////////////////
   #define DATA_BUF_SIZE (MAX_NOUT_SIZE * 100)
-  unsigned char data_buffer_[DATA_BUF_SIZE];	//!< data currently being buffered to read
+  unsigned char data_buffer_[DATA_BUF_SIZE];  //!< data currently being buffered to read
   unsigned char* data_read_;		//!< used only in BufferIncomingData - declared here for speed
   size_t bytes_remaining_;	//!< bytes remaining to be read in the current message
   size_t buffer_index_;		//!< index into data_buffer_

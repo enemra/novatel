@@ -38,7 +38,6 @@ NovatelPython::NovatelPython(std::string id, std::string raw_log_name)
   CreateRawLog(raw_log_name);
 }
 
-
 NovatelPython::~NovatelPython()
 {
 }
@@ -217,6 +216,8 @@ BOOST_PYTHON_MODULE(novatel)
       &NovatelPython::python_set_gps_almanac_callback)
     .def("python_set_best_sats_callback",
       &NovatelPython::python_set_best_sats_callback)
+    .def("ColdStartReset",
+      &NovatelPython::ColdStartReset)
   ;
 
   class_<Oem4BinaryHeader>("Oem4BinaryHeader")
@@ -432,6 +433,7 @@ BOOST_PYTHON_MODULE(novatel)
     .add_property("signals_used_mask",
       &PositionPython::signals_used_mask)
     .add_property("crc", &PositionPython::crc)
+    .add_property("as_dict", &PositionPython::as_dict)
   ;
 
   class_<PositionEcefPython>("PositionEcef", init<PositionEcef>())
@@ -478,6 +480,7 @@ BOOST_PYTHON_MODULE(novatel)
     .add_property("signals_used_mask",
       &PositionEcefPython::signals_used_mask)
     .add_property("crc", &PositionEcefPython::crc)
+    .add_property("as_dict", &PositionEcefPython::as_dict)
   ;
 
   class_<ChannelStatusPython>("ChannelStatusPython",
@@ -536,6 +539,7 @@ BOOST_PYTHON_MODULE(novatel)
       &RangeMeasurementsPython::number_of_observations)
     .add_property("range_data", &RangeMeasurementsPython::range_data)
     .add_property("crc", &RangeMeasurementsPython::crc)
+    .add_property("as_dict", &RangeMeasurementsPython::as_dict)
   ;
 
   class_<RawGpsWordPython>("RawGpsWordPython", init<RawGpsWord>())
@@ -543,6 +547,7 @@ BOOST_PYTHON_MODULE(novatel)
     .add_property("prn", &RawGpsWordPython::prn)
     .add_property("nav_word", &RawGpsWordPython::nav_word)
     .add_property("crc", &RawGpsWordPython::crc)
+    .add_property("as_dict", &RawGpsWordPython::as_dict)
   ;
 
   class_<GpsEphemerisPython>("GpsEphemerisPython", init<GpsEphemeris>())
@@ -602,6 +607,7 @@ BOOST_PYTHON_MODULE(novatel)
       &GpsEphemerisPython::corrected_mean_motion)
     .add_property("range_accuracy_variance",
       &GpsEphemerisPython::range_accuracy_variance)
+    .add_property("as_dict", &GpsEphemerisPython::as_dict)
   ;
 
   class_<AlmanacDataPython>("AlmanacDataPython", init<AlmanacData>())
@@ -639,6 +645,7 @@ BOOST_PYTHON_MODULE(novatel)
     .add_property("number_of_prns", &AlmanacPython::number_of_prns)
     .add_property("data", &AlmanacPython::data)
     .add_property("crc", &AlmanacPython::crc)
+    .add_property("as_dict", &AlmanacPython::as_dict)
   ;
 
   class_<BestSatEntry>("BestSatEntry")
