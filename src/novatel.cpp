@@ -1056,7 +1056,7 @@ void Novatel::StartReading() {
 }
 
 void Novatel::StopReading() {
-	reading_status_=false;
+  reading_status_=false;
 }
 
 void Novatel::ReadSerialPort() {
