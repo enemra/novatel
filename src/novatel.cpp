@@ -782,42 +782,41 @@ void Novatel::SaveConfiguration() {
 }
 
 void Novatel::ConfigureLogs(std::string log_string) {
-	// parse log_string on semicolons (;)
-	std::vector<std::string> logs;
+  // parse log_string on semicolons (;)
+  std::vector<std::string> logs;
 
-	Tokenize(log_string, logs, ";");
+  Tokenize(log_string, logs, ";");
 
-	// request each log from the receiver and wait for an ack
-	for (std::vector<std::string>::iterator it = logs.begin() ; it != logs.end(); ++it)
-	{
-		// try each command up to five times
-		int ii=0;
-		while (ii<5) {
-			try {
-				// send log command to gps (e.g. "LOG BESTUTMB ONTIME 1.0")
-				serial_port_->write("LOG " + *it + "\r\n");
-				std::stringstream cmd;
-				cmd << "LOG " << *it << "\r\n";
-				log_info_(cmd.str());
-				// wait for acknowledgement (or 2 seconds)
-				boost::mutex::scoped_lock lock(ack_mutex_);
-				boost::system_time const timeout=boost::get_system_time()+ boost::posix_time::milliseconds(5000);
-				if (ack_condition_.timed_wait(lock,timeout)) {
-					log_info_("Ack received for requested log: " + *it);
-					break;
-				} else {
-					log_error_("No acknowledgement received for log: " + *it);
-				}
-				ii++;
-			} catch (std::exception &e) {
-				std::stringstream output;
-		        output << "Error configuring receiver logs: " << e.what();
-		        log_error_(output.str());
-			}
-		}
-
-	}
-
+  // request each log from the receiver and wait for an ack
+  for (std::vector<std::string>::iterator it = logs.begin() ; it != logs.end(); ++it)
+  {
+    // try each command up to 2 times
+    int ii=0;
+    while (ii<2) {
+      try {
+        // send log command to gps (e.g. "LOG BESTUTMB ONTIME 1.0")
+        serial_port_->write("LOG " + *it + "\r\n");
+        std::stringstream cmd;
+        cmd << "LOG " << *it << "\r\n";
+        log_info_(cmd.str());
+        // wait for acknowledgement (or 2 seconds)
+        boost::mutex::scoped_lock lock(ack_mutex_);
+        boost::system_time const timeout=boost::get_system_time() +\
+          boost::posix_time::milliseconds(2000);
+        if (ack_condition_.timed_wait(lock,timeout)) {
+          log_info_("Ack received for requested log: " + *it);
+          break;
+        } else {
+          log_error_("No acknowledgement received for log: " + *it);
+        }
+        ii++;
+      } catch (std::exception &e) {
+        std::stringstream output;
+            output << "Error configuring receiver logs: " << e.what();
+            log_error_(output.str());
+      }
+    }
+  }
 }
 
 void Novatel::Unlog(std::string log) {
@@ -1097,14 +1096,24 @@ void Novatel::ReadFile(std::string name)
 {
   uint8_t buf[MAX_NOUT_SIZE];
   std::ifstream ifs(name, std::ios::binary);
+  uint64_t read = 0;
+
+  // get length of file:
+  ifs.seekg(0, ifs.end);
+  uint64_t length = ifs.tellg();
+  ifs.seekg(0, ifs.beg);
 
   while (ifs.good()) {
     ifs.read((char *)buf, sizeof(buf));
+    read += ifs.gcount();
     while (ifs.gcount() >\
       std::streamsize(DATA_BUF_SIZE - buffer_index_)) {
       boost::this_thread::sleep(boost::posix_time::milliseconds(1));
     }
     ReadFromFile(buf, ifs.gcount());
+    std::stringstream output;
+    output << "Handled: " << read << "/" << length << " bytes";
+    log_info_(output.str());
   }
   ifs.close();
 }
