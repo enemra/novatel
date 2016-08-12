@@ -163,6 +163,37 @@ public:
   boost::python::tuple crc() {
     return NovatelPython::arr2tuple(m_pos.crc, sizeof(m_pos.crc));
   }
+  boost::python::dict as_dict() {
+    boost::python::dict d;
+    d["time_status"] = m_pos.header.time_status;
+    d["gps_week"] = m_pos.header.gps_week;
+    d["gps_millisecs"] = m_pos.header.gps_millisecs;
+    d["status"] = m_pos.header.status;
+    d["solution_status"] = solution_status();
+    d["position_type"] = position_type();
+    d["latitude"] = latitude();
+    d["longitude"] = longitude();
+    d["height"] = height();
+    d["undulation"] = undulation();
+    d["datum_id"] = datum_id();
+    d["latitude_standard_deviation"] = latitude_standard_deviation();
+    d["longitude_standard_deviation"] = longitude_standard_deviation();
+    d["height_standard_deviation"] = height_standard_deviation();
+    std::string bsid = (char*)m_pos.base_station_id;
+    d["base_station_id"] = bsid;
+    d["differential_age"] = differential_age();
+    d["solution_age"] = solution_age();
+    d["number_of_satellites"] = number_of_satellites();
+    d["number_of_satellites_in_solution"] =
+      number_of_satellites_in_solution();
+    d["num_gps_plus_glonass_l1"] = num_gps_plus_glonass_l1();
+    d["num_gps_plus_glonass_l2"] = num_gps_plus_glonass_l2();
+    d["reserved"] = reserved();
+    d["extended_solution_status"] = extended_solution_status();
+    d["reserved2"] = reserved2();
+    d["signals_used_mask"] = signals_used_mask();
+    return d;
+  }
 private:
   Position m_pos;
 };
@@ -219,6 +250,40 @@ public:
   uint8_t signals_used_mask() {return m_pos.signals_used_mask;}
   boost::python::tuple crc() {
     return NovatelPython::arr2tuple(m_pos.crc, sizeof(m_pos.crc));
+  }
+  boost::python::dict as_dict() {
+    boost::python::dict d;
+    d["time_status"] = m_pos.header.time_status;
+    d["gps_week"] = m_pos.header.gps_week;
+    d["gps_millisecs"] = m_pos.header.gps_millisecs;
+    d["status"] = m_pos.header.status;
+    d["solution_status"] = solution_status();
+    d["position_type"] = position_type();
+    d["x_position"] = x_position();
+    d["y_position"] = y_position();
+    d["z_position"] = z_position();
+    d["x_standard_deviation"] = x_standard_deviation();
+    d["y_standard_deviation"] = y_standard_deviation();
+    d["z_standard_deviation"] = z_standard_deviation();
+    d["velocity_status"] = velocity_status();
+    d["velocity_type"] = velocity_type();
+    d["x_velocity_standard_deviation"] =
+      x_velocity_standard_deviation();
+    d["y_velocity_standard_deviation"] =
+      y_velocity_standard_deviation();
+    d["z_velocity_standard_deviation"] =
+      z_velocity_standard_deviation();
+    std::string bsid = (char*)m_pos.base_station_id;
+    d["base_station_id"] = bsid;
+    d["velocity_latency"] = velocity_latency();
+    d["differential_age"] = differential_age();
+    d["solution_age"] = solution_age();
+    d["number_of_satellites"] = number_of_satellites();
+    d["number_of_satellites_in_solution"] =
+      number_of_satellites_in_solution();
+    d["extended_solution_status"] = extended_solution_status();
+    d["signals_used_mask"] = signals_used_mask();
+    return d;
   }
 private:
   PositionEcef m_pos;
@@ -320,6 +385,41 @@ public:
     return NovatelPython::arr2tuple(m_measurements.crc,
       sizeof(m_measurements.crc));
   }
+  boost::python::dict as_dict() {
+    boost::python::dict d;
+    boost::python::list l;
+    d["number_of_observations"] = number_of_observations();
+    for (uint16_t i = 0; i < number_of_observations(); i++) {
+      boost::python::dict meas;
+      meas["time_status"] = m_measurements.header.time_status;
+      meas["gps_week"] = m_measurements.header.gps_week;
+      meas["gps_millisecs"] = m_measurements.header.gps_millisecs;
+      meas["status"] = m_measurements.header.status;
+      meas["satellite_prn"] =
+        m_measurements.range_data[i].satellite_prn;
+      meas["glonass_frequency"] =
+        m_measurements.range_data[i].glonass_frequency;
+      meas["pseudorange"] = m_measurements.range_data[i].pseudorange;
+      meas["pseudorange_standard_deviation"] =
+        m_measurements.range_data[i].pseudorange_standard_deviation;
+      meas["accumulated_doppler"] =
+        m_measurements.range_data[i].accumulated_doppler;
+      meas["accumulated_doppler_std_deviation"] =
+        m_measurements.range_data[i].accumulated_doppler_std_deviation;
+      meas["doppler"] = m_measurements.range_data[i].doppler;
+      meas["carrier_to_noise"] =
+        m_measurements.range_data[i].carrier_to_noise;
+      meas["locktime"] = m_measurements.range_data[i].locktime;
+      meas["satellite_sys"] =
+        m_measurements.range_data[i].channel_status.satellite_sys;
+      meas["channel_status_packed"] =
+        RangeDataPython(m_measurements.range_data[i]).\
+        channel_status_packed();
+      l.append(meas);
+    }
+    d["range_data"] = l;
+    return d;
+  }
 private:
   RangeMeasurements m_measurements;
 };
@@ -337,6 +437,22 @@ public:
   }
   boost::python::tuple crc() {
     return NovatelPython::arr2tuple(m_word.crc, sizeof(m_word.crc));
+  }
+  boost::python::dict as_dict() {
+    boost::python::dict d;
+    boost::python::list l;
+    d["time_status"] = m_word.header.time_status;
+    d["gps_week"] = m_word.header.gps_week;
+    d["gps_millisecs"] = m_word.header.gps_millisecs;
+    d["status"] = m_word.header.status;
+    d["prn"] = prn();
+    std::stringstream ss;
+    ss << std::hex << std::uppercase << std::setfill('0');
+    for (uint8_t i = 0; i < sizeof(m_word.nav_word); i++) {
+      ss << std::setw(2) << (uint8_t)m_word.nav_word[i];
+    }
+    d["nav_word"] = ss.str();
+    return d;
   }
 private:
   RawGpsWord m_word;
@@ -399,6 +515,46 @@ public:
   boost::python::tuple crc() {
     return NovatelPython::arr2tuple(m_ephe.crc, sizeof(m_ephe.crc));
   }
+  boost::python::dict as_dict() {
+    boost::python::dict d;
+    d["time_status"] = m_ephe.header.time_status;
+    d["gps_week"] = m_ephe.header.gps_week;
+    d["gps_millisecs"] = m_ephe.header.gps_millisecs;
+    d["status"] = m_ephe.header.status;
+    d["prn"] = prn();
+    d["time_of_week"] = time_of_week();
+    d["health"] = health();
+    d["issue_of_ephemeris_1"] = issue_of_ephemeris_1();
+    d["issue_of_ephemeris_2"] = issue_of_ephemeris_2();
+    d["gps_week"] = gps_week();
+    d["z_count_week"] = z_count_week();
+    d["time_of_ephemeris"] = time_of_ephemeris();
+    d["semi_major_axis"] = semi_major_axis();
+    d["mean_motion_difference"] = mean_motion_difference();
+    d["anomoly_reference_time"] = anomoly_reference_time();
+    d["eccentricity"] = eccentricity();
+    d["omega"] = omega();
+    d["latitude_cosine"] = latitude_cosine();
+    d["latitude_sine"] = latitude_sine();
+    d["orbit_radius_cosine"] = orbit_radius_cosine();
+    d["orbit_radius_sine"] = orbit_radius_sine();
+    d["inclination_cosine"] = inclination_cosine();
+    d["inclination_sine"] = inclination_sine();
+    d["inclination_angle"] = inclination_angle();
+    d["inclination_angle_rate"] = inclination_angle_rate();
+    d["right_ascension"] = right_ascension();
+    d["right_ascension_rate"] = right_ascension_rate();
+    d["issue_of_data_clock"] = issue_of_data_clock();
+    d["sv_clock_correction"] = sv_clock_correction();
+    d["group_delay_difference"] = group_delay_difference();
+    d["clock_aligning_param_0"] = clock_aligning_param_0();
+    d["clock_aligning_param_1"] = clock_aligning_param_1();
+    d["clock_aligning_param_2"] = clock_aligning_param_2();
+    d["anti_spoofing"] = anti_spoofing();
+    d["corrected_mean_motion"] = corrected_mean_motion();
+    d["range_accuracy_variance"] = range_accuracy_variance();
+    return d;
+  }
 private:
   GpsEphemeris m_ephe;
 };
@@ -448,6 +604,39 @@ public:
   boost::python::tuple crc() {
     return NovatelPython::arr2tuple(m_almanac.crc,
       sizeof(m_almanac.crc));
+  }
+  boost::python::dict as_dict() {
+    boost::python::dict d;
+    boost::python::list l;
+    d["number_of_prns"] = number_of_prns();
+    for (uint16_t i = 0; i < number_of_prns(); i++) {
+      boost::python::dict alm;
+      alm["time_status"] = m_almanac.header.time_status;
+      alm["gps_week"] = m_almanac.header.gps_week;
+      alm["gps_millisecs"] = m_almanac.header.gps_millisecs;
+      alm["status"] = m_almanac.header.status;
+      alm["prn"] = m_almanac.data[i].prn;
+      alm["ref_week"] = m_almanac.data[i].ref_week;
+      alm["ref_time"] = m_almanac.data[i].ref_time;
+      alm["eccentricity"] = m_almanac.data[i].eccentricity;
+      alm["right_ascension_rate"] = m_almanac.data[i].right_ascension_rate;
+      alm["right_ascension"] = m_almanac.data[i].right_ascension;
+      alm["perigee"] = m_almanac.data[i].perigee;
+      alm["mean_anomoly_of_ref_time"] =
+        m_almanac.data[i].mean_anomoly_of_ref_time;
+      alm["clock_aging_param_0"] = m_almanac.data[i].clock_aging_param_0;
+      alm["clock_aging_param_1"] = m_almanac.data[i].clock_aging_param_1;
+      alm["corrected_mean_motion"] = m_almanac.data[i].corrected_mean_motion;
+      alm["semi_major_axis"] = m_almanac.data[i].semi_major_axis;
+      alm["inclination_angle"] = m_almanac.data[i].inclination_angle;
+      alm["sv_configuration"] = m_almanac.data[i].sv_configuration;
+      alm["sv_health"] = m_almanac.data[i].sv_health;
+      alm["sv_health_from_almanac"] = m_almanac.data[i].sv_health_from_almanac;
+      alm["anti_spoofing"] = m_almanac.data[i].anti_spoofing;
+      l.append(alm);
+    }
+    d["almas"] = l;
+    return d;
   }
 private:
   Almanac m_almanac;
