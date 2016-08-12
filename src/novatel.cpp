@@ -365,8 +365,8 @@ bool Novatel::CreateRawLog(std::string &name) {
     return false;
   }
 
-  raw_log.open(name, std::ios::binary);
-  
+  raw_log.open(name.c_str(), std::ios::binary);
+
   return true;
 }
 
@@ -1095,7 +1095,7 @@ void Novatel::ReadSerialPort() {
 void Novatel::ReadFile(std::string name)
 {
   uint8_t buf[MAX_NOUT_SIZE];
-  std::ifstream ifs(name, std::ios::binary);
+  std::ifstream ifs(name.c_str(), std::ios::binary);
   uint64_t read = 0;
 
   // get length of file:
