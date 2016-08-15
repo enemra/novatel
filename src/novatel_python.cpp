@@ -218,6 +218,8 @@ BOOST_PYTHON_MODULE(novatel)
       &NovatelPython::python_set_best_sats_callback)
     .def("ColdStartReset",
       &NovatelPython::ColdStartReset)
+    .def("SendCommand",
+      &NovatelPython::SendCommand)
   ;
 
   class_<Oem4BinaryHeader>("Oem4BinaryHeader")
